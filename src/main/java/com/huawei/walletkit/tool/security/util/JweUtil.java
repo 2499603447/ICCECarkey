@@ -35,12 +35,14 @@ import java.util.zip.GZIPOutputStream;
  * @since 2020-03-02
  */
 public class JweUtil {
+    private static final String TAG = "JweUtil";
+
     /**
      * Generate a thin JWE. This JWEs contains only instanceId information. It's used to bind an existing instance
      * to a user. You should generate a thin JWE with an instanceId that has already been added to HMS wallet server.
      */
     public static String generateThinJWEToBindUser(String instanceId) {
-        System.out.println("generateThinJWEToBindUser with instanceId begin.\n");
+        LogUtil.info(TAG, "generateThinJWEToBindUser with instanceId begin.\n");
 
         // This is the app ID registered on Huawei AGC website.
         String appId = ConfigUtil.instants().getValue("gw.appid");
@@ -55,18 +57,18 @@ public class JweUtil {
 
         // Generate a thin JWE.
         String jwe = JweUtil.generateJwe(jweSignPrivateKey, payload);
-        System.out.println("JWE String: " + jwe + "\n");
+        LogUtil.info(TAG, "JWE String: " + jwe + "\n");
         String jweEncoded = "";
         try {
             // 1.If you access with website, such as Chrome Web browser, IE, Microsoft Edge; please encode jwe by URLEncoder.encode(jwe, "UTF-8");
             // 2.If you access with android mobile phone and interact with Huawei Wallet Server directly; please do not encode it;
             // 3.If you access with android mobile phone and pass jwe to Huawei Pay Application by android schema; please encode jwe by URLEncoder.encode(jwe, "UTF-8");
             jweEncoded = URLEncoder.encode(jwe, "UTF-8");
-            System.out.println("JWE String after encode: " + jweEncoded + "\n");
-            System.out.println("JWE link for browser: " + ConfigUtil.instants().getValue("walletWebsiteBaseUrl")
+            LogUtil.info(TAG, "JWE String after encode: " + jweEncoded + "\n");
+            LogUtil.info(TAG, "JWE link for browser: " + ConfigUtil.instants().getValue("walletWebsiteBaseUrl")
                     + "?content=" + jweEncoded);
         } catch (UnsupportedEncodingException e) {
-            System.out.println("Encode JWE String error.");
+            LogUtil.info(TAG, "Encode JWE String error.");
         }
 
         return jweEncoded;
@@ -82,45 +84,45 @@ public class JweUtil {
     public static String generateJwe(String jwePrivateKey, String payload) {
         // Part 1: JWE Header.
         // This header contains information about encryption and compression algorithms. It's a constant String.
-        System.out.println("Part 1:");
+        LogUtil.info(TAG, "Part 1:");
         Map<String, String> jweHeader = getHeader();
         String jweHeaderEncode = getEncodeHeader(jweHeader);
-        System.out.println("Encoded header: " + jweHeaderEncode);
+        LogUtil.info(TAG, "Encoded header: " + jweHeaderEncode);
 
         // Part 2: JWE Encrypted Key
         // Generate a 16-byte session key to encrypt payload data. Then convert it to a Hex String.
-        System.out.println("Part 2:");
+        LogUtil.info(TAG, "Part 2:");
         String sessionKey = generateSecureRandomFactor(16);
         // Encrypt the session key Hex String with Huawei's fixed sessionKeyPublicKey using
         // RSA/NONE/OAEPwithSHA-256andMGF1Padding algorithm, and then do base64 encoding to it.
-        System.out.println("sessionKey: " + sessionKey);
+        LogUtil.info(TAG, "sessionKey: " + sessionKey);
         String sessionKeyPublicKey =
             "MIIBojANBgkqhkiG9w0BAQEFAAOCAY8AMIIBigKCAYEAgBJB4usbO33Xg5vhJqfHJsMZj44f7rxpjRuPhGy37bUBjSLXN+dS6HpxnZwSVJCtmiydjl3Inq3Mzu4SCGxfb9RIjqRRfHA7ab5p3JnJVQfTEHMHy8XcABl6EPYIJMh26kztPOKU2Mkn6yhRaCurhVUD3n9bD8omiNrR4rg442AJlNamA7vgKs65AoqBuU4NBkGHg0VWWpEHCUx/xyX6hIwqc1aD7P2f62ZHsKpNZBOek/riWhaVx3dTAa9ZS+Av3IGLOZiplhYIow9f8dlWyqs8nff9FZoJO03QhXLvOORT+lPAkW6gFzaoeMaGb40HakkZn3uvlAEKrKrtR0rZEok+N1hnboaAu8oaKK0rF1W6iNrXcFrO0rcrCsFTVF8qCa/1dFmIXwUd2M6cUzT9W0YkNyb6ZBbwEhjwBL4DNW4JfeF2Dzj0eZYlSuYV7e7e1e+XEO8lwPLAiy4bEFAWCaeuDVIhbIoBaU6xHNVQoyzct98gaOYxE4mVDqAUVmhfAgMBAAE=";
         String encryptedKeyEncode = getEncryptedKey(sessionKey, sessionKeyPublicKey);
-        System.out.println("Encrypted sessionKey: " + encryptedKeyEncode);
+        LogUtil.info(TAG, "Encrypted sessionKey: " + encryptedKeyEncode);
 
         // Part 3: JWE IV
         // Generate a 12-byte iv. Then convert it to a Hex String, and then do base64 encoding to the Hex String.
-        System.out.println("Part 3:");
+        LogUtil.info(TAG, "Part 3:");
         byte[] iv = AesUtils.getIvByte(12);
         String ivHexStr = new String(Hex.encodeHex(iv, false));
         String ivEncode = Base64.encodeBase64URLSafeString(ivHexStr.getBytes(StandardCharsets.UTF_8));
-        System.out.println("Encoded iv: " + ivEncode);
+        LogUtil.info(TAG, "Encoded iv: " + ivEncode);
 
         // Part 4: JWE Cipher Text
         // Encrypt the payload with sessionKey and iv using AES/GCM/NoPadding algorithm. Encode the cipher text into a
         // Hex String. Then do gzip compression and base64 encoding to the Hex String.
-        System.out.println("Part 4:");
-        System.out.println("payload: " + payload);
+        LogUtil.info(TAG, "Part 4:");
+        LogUtil.info(TAG, "payload: " + payload);
         String cipherTextEncode = getCipherText(payload, sessionKey, iv);
-        System.out.println("Compressed and encoded cipher text: " + cipherTextEncode);
+        LogUtil.info(TAG, "Compressed and encoded cipher text: " + cipherTextEncode);
 
         // Part 5: JWE Signature
         // Use your own private key to sign the content with SHA256withRSA, then do base64 encoding to it.
         // HMS wallet server will use the public key you provided on AGC to verify signatures.
-        System.out.println("Part 5:");
+        LogUtil.info(TAG, "Part 5:");
         String signature = getSignature(jwePrivateKey, sessionKey, payload, jweHeaderEncode, ivEncode);
-        System.out.println("signature: " + signature + "\n");
+        LogUtil.info(TAG, "signature: " + signature + "\n");
 
         // Combine all five parts together to form a valid JWE.
         StringBuilder stringBuilder = new StringBuilder().append(jweHeaderEncode)
@@ -155,7 +157,7 @@ public class JweUtil {
             .append(", zip=")
             .append(jweHeader.get("zip"))
             .toString();
-        System.out.println("Header before encoding: " + headerStr);
+        LogUtil.info(TAG, "Header before encoding: " + headerStr);
         // Do base64 encoding.
         return Base64.encodeBase64URLSafeString(headerStr.getBytes(StandardCharsets.UTF_8));
     }
@@ -172,7 +174,7 @@ public class JweUtil {
 
     private static String getCipherText(String dataJson, String sessionKey, byte[] iv) {
         String payloadEncrypt = AesUtils.encryptByGcm(dataJson, sessionKey, iv);
-        System.out.println("Encrypted payload Hex String: " + payloadEncrypt);
+        LogUtil.info(TAG, "Encrypted payload Hex String: " + payloadEncrypt);
         byte[] payLoadEncryptCompressByte = compress(payloadEncrypt.getBytes(StandardCharsets.UTF_8));
         return Base64.encodeBase64URLSafeString(payLoadEncryptCompressByte);
     }
@@ -188,7 +190,7 @@ public class JweUtil {
             .append(".")
             .append(payLoadJson)
             .toString();
-        System.out.println("Content to be signed: " + signContent);
+        LogUtil.info(TAG, "Content to be signed: " + signContent);
         return RsaUtil.sign(signContent, jweSignPrivateKey);
     }
 
@@ -208,7 +210,7 @@ public class JweUtil {
             gzip.finish();
             return out.toByteArray();
         } catch (Exception e) {
-            System.out.println(e.getMessage());
+            LogUtil.info(TAG, e.getMessage());
             return null;
         }
     }

@@ -18,6 +18,7 @@ package com.huawei.walletkit.tool.security.manager.addinstance.hms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+import com.huawei.walletkit.tool.security.model.hwobject.HwWalletObject;
 
 /**
  * Interface of invoking HMS wallet server APIs.
@@ -33,6 +34,15 @@ public interface ServerApiService {
      * @return the posted HwWalletObject.
      */
     JSONObject postToWalletServer(String urlSegment, String body);
+
+    /**
+     * Post a HwWalletObject to wallet server.
+     *
+     * @param urlSegment request URL segment.
+     * @param body HwWalletObject.
+     * @return the posted HwWalletObject.
+     */
+    HwWalletObject postToWalletServer(String urlSegment, HwWalletObject body);
 
     /**
      * query Huawei Wallet supported features from wallet server.
@@ -80,7 +90,7 @@ public interface ServerApiService {
      * @param body JSON-type HwWalletObject.
      * @return the updated model/instance.
      */
-    JSONObject fullUpdateHwWalletObject(String urlSegment, String id, String body);
+    JSONObject fullUpdateHwWalletObject(String urlSegment, String id, HwWalletObject body);
 
     /**
      * Update a model/instance.
@@ -90,25 +100,5 @@ public interface ServerApiService {
      * @param body JSON-type HwWalletObject.
      * @return the updated model/instance.
      */
-    JSONObject partialUpdateHwWalletObject(String urlSegment, String id, String body);
-
-    /**
-     * Add messages to a HwWalletObject.
-     *
-     * @param urlSegment request URL segment.
-     * @param id model/instance ID.
-     * @param body JSON-type messageList object.
-     * @return the updated model/instance.
-     */
-    JSONObject addMessageToHwWalletObject(String urlSegment, String id, String body);
-
-    /**
-     * Add/remove linked offer IDs to/from a loyalty instance.
-     *
-     * @param urlSegment request URL segment.
-     * @param instanceId instance ID.
-     * @param body JSON-type LinkedOfferInstanceIds object.
-     * @return the updated loyalty instance.
-     */
-    JSONObject updateLinkedOffersToLoyaltyInstance(String urlSegment, String instanceId, String body);
+    JSONObject partialUpdateHwWalletObject(String urlSegment, String id, HwWalletObject body);
 }

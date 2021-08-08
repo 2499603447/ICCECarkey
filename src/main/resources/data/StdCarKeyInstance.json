@@ -1,7 +1,8 @@
 {
-  "organizationName": "xxx车钥匙",
-  "passTypeIdentifier": "hwpass.stdcarkey.bluecarkey.xxx",
-  "passStyleIdentifier": "xxxxxxx",
+  "passVersion": "10.0",
+  "organizationName": "ICCE车钥匙",
+  "passTypeIdentifier": "hwpass.stdcarkey.bluecarkey.iccedemo",
+  "passStyleIdentifier": "icceModel",
   "organizationPassId": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "serialNumber": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
   "fields": {
@@ -31,7 +32,7 @@
       },
       {
         "label": "readerId",
-        "value": "xxxxxxxxxxxxxxxxxxxxx",
+        "value": "0A34E38C23",
         "key": "readerMatchValue"
       },
       {
@@ -54,11 +55,11 @@
     ]
   },
   "linkDevicePass": {
-    "webServiceURL": "https://xxxxx",
+    "webServiceURL": "http://47.110.226.55:32018",
     "nfcType": "1",
     "serialNumber": "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx",
     "passVersion": "10.0",
-    "spPublickey": "xxxxxxx",
-    "token": "xxxxxx"
+    "spPublickey": "MIICIjANBgkqhkiG9w0BAQEFAAOCAg8AMIICCgKCAgEAirME13zanj9JoqwanHdUDQGtmRyluJn8EBZNZ6jtvDVp4hKN4ipTFMs7giOaRxrcL7pCdnDyrxvojcS9WOfKlXpUSVAJIAj2WaHpYGfNMMRJS8H29lZ3NLhZZ8cIZn94P1qMNKwR5V6+5EdV5A/sxfZw37cvsYGT+Iv2uHXOnXPWr7SuKzGd/uYfxO9nzQN0M27WHA/6+zlA3gbAcXyneVmQfsOlV+TwWzA5P4UWFTUBq/uOE9UGcoZn3TJbVBcAENvJlB6eYdtUH0W8Wu0+MDmRxf00p7z4FyiK+WgsefUOCdOp6XkCD+rjv7Fjp34jZiIopIdNVBUtH2pYz1rJeb0ZC5V7s56kyDlndK/P1qSMp4n4vNvzvGlWb1KOgaxRmTp4AuukS/Wn7NK9dR19UWmlXnxfF6ScoSp0CqUtTHeh1f3kZPMdDZq4RmrxdZ2W6zHODcME+wEFBtAeumBA+uYNXdvl10auoZu9Vcotlog2ntSKiIdPJGXuuVc4VNTHpPEnsWfWTx+DbAIsmXGLXCZIoRsKut1iumykEdvZkHq/ZsUwv/uX5+tryEazOyle1R5/Uv7AwohhGfyHnWBs26jztsqRx0Gfcn0X+Ayn3gx6RHJfXo6uyM1EBE5a+Bfzm9Y4mqVUMQGb8DAO8gD8DpOLhvSmRqVVQtDwTrvPCiUCAwEAAQ==",
+    "token": "123456"
   }
 }

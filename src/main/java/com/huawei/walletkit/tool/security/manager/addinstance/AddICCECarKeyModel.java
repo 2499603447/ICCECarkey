@@ -20,8 +20,10 @@ import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
 import com.huawei.walletkit.tool.security.manager.addinstance.hms.ServerApiService;
 import com.huawei.walletkit.tool.security.manager.addinstance.hms.ServerApiServiceImpl;
+import com.huawei.walletkit.tool.security.model.hwobject.HwWalletObject;
 import com.huawei.walletkit.tool.security.util.ConfigUtil;
 import com.huawei.walletkit.tool.security.util.HwWalletObjectUtil;
+import com.huawei.walletkit.tool.security.util.LogUtil;
 
 /**
  * Std car key model tests.
@@ -29,26 +31,30 @@ import com.huawei.walletkit.tool.security.util.HwWalletObjectUtil;
  * @since 2021-05-27
  */
 public class AddICCECarKeyModel {
+    private static final String TAG = "AddICCECarKeyModel";
     private final ServerApiService serverApiService = new ServerApiServiceImpl();
+
+    private static final AddICCECarKeyModel INSTANCE = new AddICCECarKeyModel();
+
+    public static AddICCECarKeyModel getInstance() {
+        return INSTANCE;
+    }
 
     /**
      * Create a new std car key model.
      * Each std car key model indicates a style of std car key passes.
      * POST http://XXX/hmspass/v2/key_stdcar/model
      */
-    public void createStdCarKeyModel() {
-        System.out.println("createStdCarKeyModel begin.");
-
-        // Read a std car key model from a JSON file.
-        JSONObject model = JSONObject.parseObject(ConfigUtil.readFile("StdCarKeyModel.json"));
+    public void createStdCarKeyModel(HwWalletObject model) {
+        LogUtil.info(TAG, "createStdCarKeyModel begin.");
 
         // Validate parameters.
         HwWalletObjectUtil.validateModel(model);
 
         // Post the new std car key model to HMS wallet server.
         String urlSegment = "/v2/key_stdcar/model";
-        JSONObject responseModel = serverApiService.postToWalletServer(urlSegment, JSONObject.toJSONString(model));
-        System.out.println("Posted std car key model: " + JSONObject.toJSONString(responseModel));
+        HwWalletObject responseModel = serverApiService.postToWalletServer(urlSegment, model);
+        LogUtil.info(TAG, "Posted std car key model: " + JSONObject.toJSONString(responseModel));
     }
 
     /**
@@ -56,16 +62,13 @@ public class AddICCECarKeyModel {
      * Run the "createStdCarKeyModel" test before running this test.
      * GET http://xxx/hmspass/v2/key_stdcar/model/{modelId}
      */
-    public void getStdCarKeyModel() {
-        System.out.println("getStdCarKeyModel begin.");
-
-        // ID of the std car key model you want to get.
-        String modelId = "xxxxxxx";
+    public void getStdCarKeyModel(String modelId) {
+        LogUtil.info(TAG, "getStdCarKeyModel begin.");
 
         // Get the std car key model.
         String urlSegment = "/v2/key_stdcar/model/";
         JSONObject responseModel = serverApiService.getHwWalletObjectById(urlSegment, modelId);
-        System.out.println("Corresponding std car key model: " + JSONObject.toJSONString(responseModel));
+        LogUtil.info(TAG, "Corresponding std car key model: " + JSONObject.toJSONString(responseModel));
     }
 
     /**
@@ -74,14 +77,14 @@ public class AddICCECarKeyModel {
      * GET http://xxx/hmspass/v2/key_stdcar/model?session=XXX&pageSize=XXX
      */
     public void getStdCarKeyModelList() {
-        System.out.println("getStdCarKeyModelList begin.");
+        LogUtil.info(TAG, "getStdCarKeyModelList begin.");
 
         // Get a list of std car key models.
         String urlSegment = "/v2/key_stdcar/model";
 
         JSONArray models = serverApiService.getModels(urlSegment, 5);
-        System.out.println("Total models count: " + models.size());
-        System.out.println("Models list: " + models.toJSONString());
+        LogUtil.info(TAG, "Total models count: " + models.size());
+        LogUtil.info(TAG, "Models list: " + models.toJSONString());
     }
 
     /**
@@ -89,20 +92,16 @@ public class AddICCECarKeyModel {
      * Run the "createStdCarKeyModel" test before running this test.
      * PUT http://xxx/hmspass/v2/key_stdcar/model/{modelId}
      */
-    public void fullUpdateStdCarKeyModel() {
-        System.out.println("fullUpdateStdCarKeyModel begin.");
-
-        // Read a HwWalletObject from a JSON file. This HwWalletObject will overwrite the corresponding model.
-        JSONObject model = JSONObject.parseObject(ConfigUtil.readFile("FullUpdateStdCarKeyModel.json"));
+    public void fullUpdateStdCarKeyModel(HwWalletObject object) {
+        LogUtil.info(TAG, "fullUpdateStdCarKeyModel begin.");
 
         // Validate parameters.
-        HwWalletObjectUtil.validateModel(model);
+        HwWalletObjectUtil.validateModel(object);
 
         // Update the std car key model.
         String urlSegment = "/v2/key_stdcar/model/";
-        JSONObject responseModel = serverApiService.fullUpdateHwWalletObject(urlSegment,
-            model.getString("passStyleIdentifier"), JSONObject.toJSONString(model));
-        System.out.println("Updated std car key model: " + JSONObject.toJSONString(responseModel));
+        JSONObject responseModel = serverApiService.fullUpdateHwWalletObject(urlSegment, object.getPassStyleIdentifier(), object);
+        LogUtil.info(TAG, "Updated std car key model: " + JSONObject.toJSONString(responseModel));
     }
 
     /**
@@ -110,18 +109,15 @@ public class AddICCECarKeyModel {
      * Run the "createStdCarKeyModel" test before running this test.
      * PATCH http://xxx/hmspass/v2/key_stdcar/model/{modelId}
      */
-    public void partialUpdateStdCarKeyModel() {
-        System.out.println("partialUpdateStdCarKeyModel begin.");
+    public void partialUpdateStdCarKeyModel(HwWalletObject object) {
+        LogUtil.info(TAG, "partialUpdateStdCarKeyModel begin.");
 
         // ID of the std car key model you want to update.
-        String modelId = "xxxxxxx";
-
-        // Read a HwWalletObject from a JSON file. This HwWalletObject will merge with the corresponding model.
-        String modelStr = ConfigUtil.readFile("PartialUpdateStdCarKeyModel.json");
+        String modelId = object.getPassStyleIdentifier();
 
         // Update the std car key model.
         String urlSegment = "/v2/key_stdcar/model/";
-        JSONObject responseModel = serverApiService.partialUpdateHwWalletObject(urlSegment, modelId, modelStr);
-        System.out.println("Updated std car key model: " + JSONObject.toJSONString(responseModel));
+        JSONObject responseModel = serverApiService.partialUpdateHwWalletObject(urlSegment, modelId, object);
+        LogUtil.info(TAG, "Updated std car key model: " + JSONObject.toJSONString(responseModel));
     }
 }

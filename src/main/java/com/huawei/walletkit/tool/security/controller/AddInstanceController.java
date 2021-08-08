@@ -5,6 +5,7 @@
 package com.huawei.walletkit.tool.security.controller;
 
 import com.huawei.walletkit.tool.security.manager.addinstance.AddICCECarKeyInstance;
+import com.huawei.walletkit.tool.security.model.AddInstanceRequest;
 import com.huawei.walletkit.tool.security.model.AddInstanceResponse;
 import com.huawei.walletkit.tool.security.model.RegistrationsRequest;
 import org.springframework.http.ResponseEntity;
@@ -30,7 +31,31 @@ public class AddInstanceController {
      */
     @PostMapping(path = "/v1/passes/addInstance")
     public ResponseEntity<AddInstanceResponse> addInstance(HttpServletRequest res,
-        @RequestBody RegistrationsRequest request) {
-        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().addStdCarKeyInstance());
+        @RequestBody AddInstanceRequest request) {
+        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().addStdCarKeyInstance(request.getWalletObject()));
+    }
+
+    @PostMapping(path = "/v1/passes/getInstance")
+    public ResponseEntity<AddInstanceResponse> getInstance(HttpServletRequest res,
+        @RequestBody AddInstanceRequest request) {
+        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().getStdCarKeyInstance(request.getWalletObject()));
+    }
+
+    @PostMapping(path = "/v1/passes/getInstanceList")
+    public ResponseEntity<AddInstanceResponse> getInstanceList(HttpServletRequest res,
+        @RequestBody AddInstanceRequest request) {
+        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().getStdCarKeyInstanceList(request.getWalletObject()));
+    }
+
+    @PostMapping(path = "/v1/passes/fullUpdateInstance")
+    public ResponseEntity<AddInstanceResponse> fullUpdateInstance(HttpServletRequest res,
+        @RequestBody AddInstanceRequest request) {
+        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().fullUpdateStdCarKeyInstance(request.getWalletObject()));
+    }
+
+    @PostMapping(path = "/v1/passes/partialUpdateInstance")
+    public ResponseEntity<AddInstanceResponse> partialUpdateInstance(HttpServletRequest res,
+        @RequestBody AddInstanceRequest request) {
+        return ResponseEntity.ok(AddICCECarKeyInstance.getInstance().partialUpdateStdCarKeyInstance(request.getWalletObject()));
     }
 }

@@ -18,8 +18,11 @@ package com.huawei.walletkit.tool.security.manager.addinstance.hms;
 
 import com.alibaba.fastjson.JSONArray;
 import com.alibaba.fastjson.JSONObject;
+
+import com.huawei.walletkit.tool.security.model.hwobject.HwWalletObject;
 import com.huawei.walletkit.tool.security.util.NetworkUtil;
 import com.huawei.walletkit.tool.security.util.ConfigUtil;
+
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpMethod;
@@ -62,6 +65,23 @@ public class ServerApiServiceImpl implements ServerApiService {
         HttpEntity<JSONObject> entity = new HttpEntity<>(JSONObject.parseObject(body), header);
         ResponseEntity<JSONObject> exchange =
             REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.POST, entity, JSONObject.class);
+
+        // Return the posted model or instance or NFC card personalized data.
+        return exchange.getBody();
+    }
+
+    @Override
+    public HwWalletObject postToWalletServer(String urlSegment, HwWalletObject body) {
+        // Construct the http header.
+        HttpHeaders header = constructHttpHeaders();
+        // Construct the http URL.
+        String baseUrl = ConfigUtil.instants().getValue("walletServerBaseUrl");
+        String walletServerUrl = baseUrl + urlSegment;
+
+        // Send the http request and get response.
+        HttpEntity<HwWalletObject> entity = new HttpEntity<>(body, header);
+        ResponseEntity<HwWalletObject> exchange =
+                REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.POST, entity, HwWalletObject.class);
 
         // Return the posted model or instance or NFC card personalized data.
         return exchange.getBody();
@@ -196,7 +216,7 @@ public class ServerApiServiceImpl implements ServerApiService {
     }
 
     @Override
-    public JSONObject fullUpdateHwWalletObject(String urlSegment, String id, String body) {
+    public JSONObject fullUpdateHwWalletObject(String urlSegment, String id, HwWalletObject body) {
         // Construct the http header.
         HttpHeaders header = constructHttpHeaders();
         // Construct the http URL.
@@ -204,7 +224,7 @@ public class ServerApiServiceImpl implements ServerApiService {
         String walletServerUrl = baseUrl + urlSegment + id;
 
         // Send the http request and get response.
-        HttpEntity<JSONObject> entity = new HttpEntity<>(JSONObject.parseObject(body), header);
+        HttpEntity<HwWalletObject> entity = new HttpEntity<>(body, header);
         ResponseEntity<JSONObject> response =
             REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.PUT, entity, JSONObject.class);
 
@@ -213,7 +233,7 @@ public class ServerApiServiceImpl implements ServerApiService {
     }
 
     @Override
-    public JSONObject partialUpdateHwWalletObject(String urlSegment, String id, String body) {
+    public JSONObject partialUpdateHwWalletObject(String urlSegment, String id, HwWalletObject body) {
         // Construct the http header.
         HttpHeaders header = constructHttpHeaders();
         // Construct the http URL.
@@ -221,45 +241,11 @@ public class ServerApiServiceImpl implements ServerApiService {
         String walletServerUrl = baseUrl + urlSegment + id;
 
         // Send the http request and get response.
-        HttpEntity<JSONObject> entity = new HttpEntity<>(JSONObject.parseObject(body), header);
+        HttpEntity<HwWalletObject> entity = new HttpEntity<>(body, header);
         ResponseEntity<JSONObject> response =
             REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.PATCH, entity, JSONObject.class);
 
         // Return the updated model or instance.
-        return response.getBody();
-    }
-
-    @Override
-    public JSONObject addMessageToHwWalletObject(String urlSegment, String id, String body) {
-        // Construct the http header.
-        HttpHeaders header = constructHttpHeaders();
-        // Construct the http URL.
-        String baseUrl = ConfigUtil.instants().getValue("walletServerBaseUrl");
-        String walletServerUrl = baseUrl + urlSegment + id + "/addMessage";
-
-        // Send the http request and get response.
-        HttpEntity<JSONObject> entity = new HttpEntity<>(JSONObject.parseObject(body), header);
-        ResponseEntity<JSONObject> response =
-            REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.POST, entity, JSONObject.class);
-
-        // Return the updated model or instance.
-        return response.getBody();
-    }
-
-    @Override
-    public JSONObject updateLinkedOffersToLoyaltyInstance(String urlSegment, String instanceId, String body) {
-        // Construct the http header.
-        HttpHeaders header = constructHttpHeaders();
-        // Construct the http URL.
-        String baseUrl = ConfigUtil.instants().getValue("walletServerBaseUrl");
-        String walletServerUrl = baseUrl + urlSegment + "/linkedoffers";
-
-        // Send the http request and get response.
-        HttpEntity<JSONObject> entity = new HttpEntity<>(JSONObject.parseObject(body), header);
-        ResponseEntity<JSONObject> response =
-            REST_TEMPLATE.exchange(walletServerUrl, HttpMethod.PATCH, entity, JSONObject.class);
-
-        // Return the updated instance.
         return response.getBody();
     }
 

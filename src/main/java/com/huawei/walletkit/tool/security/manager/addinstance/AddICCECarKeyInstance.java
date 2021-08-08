@@ -21,10 +21,13 @@ import com.alibaba.fastjson.JSONObject;
 import com.huawei.walletkit.tool.security.manager.addinstance.hms.ServerApiService;
 import com.huawei.walletkit.tool.security.manager.addinstance.hms.ServerApiServiceImpl;
 import com.huawei.walletkit.tool.security.manager.active.Constants;
+import com.huawei.walletkit.tool.security.model.AddInstanceRequest;
 import com.huawei.walletkit.tool.security.model.AddInstanceResponse;
+import com.huawei.walletkit.tool.security.model.hwobject.HwWalletObject;
 import com.huawei.walletkit.tool.security.util.ConfigUtil;
 import com.huawei.walletkit.tool.security.util.HwWalletObjectUtil;
 import com.huawei.walletkit.tool.security.util.JweUtil;
+import com.huawei.walletkit.tool.security.util.LogUtil;
 
 /**
  * Std car key instance tests.
@@ -32,6 +35,8 @@ import com.huawei.walletkit.tool.security.util.JweUtil;
  * @since 2021-05-27
  */
 public class AddICCECarKeyInstance {
+    private static final String TAG = "AddICCECarKeyInstance";
+
     private final ServerApiService serverApiService = new ServerApiServiceImpl();
 
     private static final AddICCECarKeyInstance INSTANCE = new AddICCECarKeyInstance();
@@ -47,27 +52,28 @@ public class AddICCECarKeyInstance {
      * sending a JWE with complete instance information, without using this API. See JWE example tests.
      * POST http://XXX/hmspass/v2/key_stdcar/instance
      */
-    public AddInstanceResponse addStdCarKeyInstance() {
-        System.out.println("addStdCarKeyInstance begin.");
-
-        // Read a std car key instance from a JSON file.
-        JSONObject instance = JSONObject.parseObject(ConfigUtil.readFile("StdCarKeyInstance.json"));
+    public AddInstanceResponse addStdCarKeyInstance(HwWalletObject instance) {
+        LogUtil.info(TAG, "addStdCarKeyInstance begin.");
 
         // Validate parameters.
         HwWalletObjectUtil.validateInstance(instance);
 
         // Post the new std car key instance to HMS wallet server.
         String urlSegment = "/v2/key_stdcar/instance";
-        JSONObject responseInstance =
-                serverApiService.postToWalletServer(urlSegment, JSONObject.toJSONString(instance));
-        System.out.println("Posted std car key instance: " + JSONObject.toJSONString(responseInstance));
+        HwWalletObject responseInstance =
+                serverApiService.postToWalletServer(urlSegment, instance);
+        LogUtil.info(TAG, "Posted std car key instance: " + JSONObject.toJSONString(responseInstance));
         AddInstanceResponse response = new AddInstanceResponse();
-        if (responseInstance == null || !responseInstance.containsKey("serialNumber")) {
+        if (responseInstance == null) {
+            response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_PARAM_ERROR));
+            return response;
+        }
+        String serialNumber = responseInstance.getSerialNumber();
+        if (serialNumber == null || serialNumber.isEmpty()) {
             response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_PARAM_ERROR));
             return response;
         }
 
-        String serialNumber = responseInstance.getString("serialNumber");
         String jwe = JweUtil.generateThinJWEToBindUser(serialNumber);
         if (jwe == null || jwe.isEmpty()) {
             response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_INNER_ERROR));
@@ -84,16 +90,15 @@ public class AddICCECarKeyInstance {
      * Run the "createStdCarKeyInstance" test before running this test.
      * GET http://xxx/hmspass/v2/key_stdcar/instance/{instanceId}
      */
-    public void getStdCarKeyInstance() {
-        System.out.println("getStdCarKeyInstance begin.");
-
-        // ID of the std car key instance you want to get.
-        String instanceId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-
+    public AddInstanceResponse getStdCarKeyInstance(HwWalletObject object) {
+        LogUtil.info(TAG, "getStdCarKeyInstance begin.");
+        AddInstanceResponse response = new AddInstanceResponse();
+        String instanceId = object.getSerialNumber();
         // Get the std car key instance.
         String urlSegment = "/v2/key_stdcar/instance/";
         JSONObject responseInstance = serverApiService.getHwWalletObjectById(urlSegment, instanceId);
-        System.out.println("Corresponding std car key instance: " + JSONObject.toJSONString(responseInstance));
+        LogUtil.info(TAG, "Corresponding std car key instance: " + JSONObject.toJSONString(responseInstance));
+        return response;
     }
 
     /**
@@ -101,18 +106,17 @@ public class AddICCECarKeyInstance {
      * Run the "createStdCarKeyInstance" test before running this test.
      * GET http://xxx/hmspass/v2/key_stdcar/instance?modelId=XXX&session=XXX&pageSize=XXX
      */
-    public void getStdCarKeyInstanceList() {
-        System.out.println("getStdCarKeyyInstanceList begin.");
-
-        // Model ID of std car key instances you want to get.
-        String modelId = "xxxxx";
-
+    public AddInstanceResponse getStdCarKeyInstanceList(HwWalletObject object) {
+        LogUtil.info(TAG, "getStdCarKeyyInstanceList begin.");
+        AddInstanceResponse response = new AddInstanceResponse();
+        String modelId = object.getPassStyleIdentifier();
         // Get a list of std car key instances.
         String urlSegment = "/v2/key_stdcar/instance";
 
         JSONArray instances = serverApiService.getInstances(urlSegment, modelId, 5);
-        System.out.println("Total instances count: " + instances.size());
-        System.out.println("Instances list: " + instances.toJSONString());
+        LogUtil.info(TAG, "Total instances count: " + instances.size());
+        LogUtil.info(TAG, "Instances list: " + instances.toJSONString());
+        return response;
     }
 
     /**
@@ -120,20 +124,18 @@ public class AddICCECarKeyInstance {
      * Run the "createStdCarKeyInstance" test before running this test.
      * PUT http://xxx/hmspass/v2/key_stdcar/instance/{instanceId}
      */
-    public void fullUpdateStdCarKeyInstance() {
-        System.out.println("fullUpdateStdCarKeyInstance begin.");
-
-        // Read a HwWalletObject from a JSON file. This HwWalletObject will overwrite the corresponding instance.
-        JSONObject instance = JSONObject.parseObject(ConfigUtil.readFile("FullUpdateStdCarKeyInstance.json"));
-
+    public AddInstanceResponse fullUpdateStdCarKeyInstance(HwWalletObject instance) {
+        LogUtil.info(TAG, "fullUpdateStdCarKeyInstance begin.");
+        AddInstanceResponse response = new AddInstanceResponse();
         // Validate parameters.
         HwWalletObjectUtil.validateInstance(instance);
 
         // Update the std car key instance.
         String urlSegment = "/v2/key_stdcar/instance/";
         JSONObject responseInstance = serverApiService.fullUpdateHwWalletObject(urlSegment,
-                instance.getString("serialNumber"), JSONObject.toJSONString(instance));
-        System.out.println("Updated std car key instance: " + JSONObject.toJSONString(responseInstance));
+                instance.getSerialNumber(), instance);
+        LogUtil.info(TAG, "Updated std car key instance: " + JSONObject.toJSONString(responseInstance));
+        return response;
     }
 
     /**
@@ -141,18 +143,13 @@ public class AddICCECarKeyInstance {
      * Run the "createStdCarKeyInstance" test before running this test.
      * PATCH http://xxx/hmspass/v2/key_stdcar/instance/{instanceId}
      */
-    public void partialUpdateStdCarKeyInstance() {
-        System.out.println("partialUpdateStdCarKeyInstance begin.");
-
-        // ID of the std car key instance you want to update.
-        String instanceId = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";
-
-        // Read a HwWalletObject from a JSON file. This HwWalletObject will merge with the corresponding instance.
-        String instanceStr = ConfigUtil.readFile("PartialUpdateStdCarKeyInstance.json");
-
+    public AddInstanceResponse partialUpdateStdCarKeyInstance(HwWalletObject instance) {
+        LogUtil.info(TAG, "partialUpdateStdCarKeyInstance begin.");
+        AddInstanceResponse response = new AddInstanceResponse();
         // Update the std car key instance.
         String urlSegment = "/v2/key_stdcar/instance/";
-        JSONObject responseInstance = serverApiService.partialUpdateHwWalletObject(urlSegment, instanceId, instanceStr);
-        System.out.println("Updated std car key instance: " + JSONObject.toJSONString(responseInstance));
+        JSONObject responseInstance = serverApiService.partialUpdateHwWalletObject(urlSegment, instance.getSerialNumber(), instance);
+        LogUtil.info(TAG, "Updated std car key instance: " + JSONObject.toJSONString(responseInstance));
+        return response;
     }
 }
