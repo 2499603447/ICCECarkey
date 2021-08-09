@@ -116,13 +116,7 @@ public class PassData {
      * @return filled byte array
      */
     private static byte[] fillData(String srcData) {
-        byte[] srcBytes;
-        try {
-            srcBytes = srcData.getBytes(Constants.UTF8_ENCODING);
-        } catch (UnsupportedEncodingException e) {
-            LogUtil.info("fillData, UnsupportedEncodingException.");
-            return null;
-        }
+        byte[] srcBytes = DataConvertUtil.hexStringToByteArray(srcData);
         byte[] lengthBytes = DataConvertUtil.dataLengthToBytes(srcBytes.length);
         if (lengthBytes.length == 0) {
             LogUtil.info("fillData, data length error, length=" + srcBytes.length);
