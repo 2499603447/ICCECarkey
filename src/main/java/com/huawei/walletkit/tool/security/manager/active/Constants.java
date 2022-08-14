@@ -51,6 +51,36 @@ public class Constants {
 
     public static final String PASS_TYPE_PREFIX = "hwpass.stdcarkey";
 
+    public static final String FIXED_BLE_FEATURE = "hwpass.carkey.ble";
+
+    public static final String FIXED_OWNER_PASS_TYPE_IDENTIFIER = "hwpass.stdcarkey.std";
+
+    public static final String COMMON_FIELDS_KEY_BLE_TARGET_ACTIVITY = "bleTargetActivity";
+
+    public static final String COMMON_FIELDS_KEY_BLE_TARGET_PACKAGE = "bleTargetPackage";
+
+    public static final String COMMON_FIELDS_KEY_BLE_TARGET_SERVICE = "bleTargetService";
+
+    public static final String COMMON_FIELDS_KEY_VEHICLE_ID = "vehicleId";
+
+    public static final String COMMON_FIELDS_KEY_CAR_MODEL = "carModel";
+
+    public static final String COMMON_FIELDS_KEY_BLE_FEATURE = "bleFeature";
+
+    public static final String COMMON_FIELDS_KEY_BLE_MAC_ADDRESS = "bleMacAddress";
+
+    public static final String COMMON_FIELDS_KEY_READER_MATCH_VALUE = "readerMatchValue";
+
+    public static final String COMMON_FIELDS_KEY_OWNER_PASS_TYPE_IDENTIFIER = "ownerPassTypeIdentifier";
+
+    public static final String COMMON_FIELDS_KEY_BLE_SERVICE_UUID = "bleServiceUuid";
+
+    public static final String PATTERN_MAC_ADDRESS = "([A-F0-9]{2}:){5}[A-F0-9]{2}";
+
+    public static final String PATTERN_READER_MATCH_VALUE = "^[A-F0-9]+$";
+
+    public static final String PATTERN_BLE_SERVICE_UUID = "([0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}?)";
+
     /**
      * key of code_ok
      */

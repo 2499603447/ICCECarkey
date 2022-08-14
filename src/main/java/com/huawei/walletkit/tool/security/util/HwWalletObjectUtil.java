@@ -232,56 +232,58 @@ public class HwWalletObjectUtil {
             return;
         }
         Set<String> mustFieldsSet = new HashSet<>();
-        mustFieldsSet.add("bleTargetActivity");
-        mustFieldsSet.add("bleFeature");
-        mustFieldsSet.add("bleMacAddress");
-        mustFieldsSet.add("readerMatchValue");
-        mustFieldsSet.add("ownerPassTypeIdentifier");
-        mustFieldsSet.add("bleServiceUuid");
-        mustFieldsSet.add("bleTargetPackage");
-        mustFieldsSet.add("bleTargetService");
-        mustFieldsSet.add("vehicleId");
-        mustFieldsSet.add("carModel");
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_TARGET_ACTIVITY);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_TARGET_PACKAGE);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_TARGET_SERVICE);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_VEHICLE_ID);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_CAR_MODEL);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_FEATURE);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_MAC_ADDRESS);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_READER_MATCH_VALUE);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_OWNER_PASS_TYPE_IDENTIFIER);
+        mustFieldsSet.add(Constants.COMMON_FIELDS_KEY_BLE_SERVICE_UUID);
 
         for (ValueObject object : commonFields) {
             String key = object.getKey();
             String value = object.getValue();
-            if ("bleTargetActivity".equals(key) || "bleTargetPackage".equals(key) || "bleTargetService".equals(key)
-                || "vehicleId".equals(key) || "carModel".equals(key)) {
+            if (Constants.COMMON_FIELDS_KEY_BLE_TARGET_ACTIVITY.equals(key)
+                || Constants.COMMON_FIELDS_KEY_BLE_TARGET_PACKAGE.equals(key)
+                || Constants.COMMON_FIELDS_KEY_BLE_TARGET_SERVICE.equals(key)
+                || Constants.COMMON_FIELDS_KEY_VEHICLE_ID.equals(key)
+                || Constants.COMMON_FIELDS_KEY_CAR_MODEL.equals(key)) {
                 if (value == null || value.isEmpty()) {
                     throw new IllegalArgumentException("bleTargetActivity, bleTargetPackage, bleTargetService, vehicleId, carModel is empty");
                 }
                 mustFieldsSet.remove(key);
             }
-            if ("bleFeature".equals(key)) {
-                if (!"hwpass.carkey.ble".equals(value)) {
+            if (Constants.COMMON_FIELDS_KEY_BLE_FEATURE.equals(key)) {
+                if (!Constants.FIXED_BLE_FEATURE.equals(value)) {
                     throw new IllegalArgumentException("bleFeature must be hwpass.carkey.ble");
                 }
                 mustFieldsSet.remove(key);
             }
-            if ("bleMacAddress".equals(key)) {
-                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+            if (Constants.COMMON_FIELDS_KEY_BLE_MAC_ADDRESS.equals(key)) {
+                if (value == null || !value.matches(Constants.PATTERN_MAC_ADDRESS)) {
                     throw new IllegalArgumentException("bleMacAddress is illegal, must 6 bytes which contains A-F or 0-9 and split by ':'");
                 }
                 mustFieldsSet.remove(key);
             }
-            if ("readerMatchValue".equals(key)) {
-                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+            if (Constants.COMMON_FIELDS_KEY_READER_MATCH_VALUE.equals(key)) {
+                if (value == null || !value.matches(Constants.PATTERN_READER_MATCH_VALUE)) {
                     throw new IllegalArgumentException("readerMatchValue must smaller than 20 bytes and contains A-F or 0-9");
                 }
                 mustFieldsSet.remove(key);
             }
 
-
-            if ("ownerPassTypeIdentifier".equals(key)) {
-                if (!"hwpass.stdcarkey.std".equals(value)) {
+            if (Constants.COMMON_FIELDS_KEY_OWNER_PASS_TYPE_IDENTIFIER.equals(key)) {
+                if (!Constants.FIXED_OWNER_PASS_TYPE_IDENTIFIER.equals(value)) {
                     throw new IllegalArgumentException("bleFeature must be hwpass.stdcarkey.std");
                 }
                 mustFieldsSet.remove(key);
             }
 
-            if ("bleServiceUuid".equals(key)) {
-                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+            if (Constants.COMMON_FIELDS_KEY_BLE_SERVICE_UUID.equals(key)) {
+                if (value == null || !value.matches(Constants.PATTERN_BLE_SERVICE_UUID)) {
                     throw new IllegalArgumentException("bleServiceUuid is illegal, must 32 bytes which contains A-F or 0-9 and split by ':'");
                 }
                 mustFieldsSet.remove(key);
