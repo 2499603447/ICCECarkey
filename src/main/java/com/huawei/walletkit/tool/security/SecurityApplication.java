@@ -6,6 +6,8 @@ package com.huawei.walletkit.tool.security;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.builder.SpringApplicationBuilder;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 
 /**
  * SecurityApplication
@@ -14,8 +16,13 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * @since 2020-07-15
  */
 @SpringBootApplication
-public class SecurityApplication {
-    public static void main(String[] args) {
+public class SecurityApplication extends SpringBootServletInitializer{
+    /*public static void main(String[] args) {
         SpringApplication.run(SecurityApplication.class, args);
+    }*/
+
+    @Override
+    protected SpringApplicationBuilder configure(SpringApplicationBuilder builder) {
+        return builder.sources(SecurityApplication.class);
     }
 }

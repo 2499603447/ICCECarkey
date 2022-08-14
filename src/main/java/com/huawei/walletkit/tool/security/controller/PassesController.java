@@ -4,15 +4,8 @@
 
 package com.huawei.walletkit.tool.security.controller;
 
+import com.huawei.walletkit.tool.security.model.*;
 import com.huawei.walletkit.tool.security.util.LogUtil;
-import com.huawei.walletkit.tool.security.model.PersonalizeRequest;
-import com.huawei.walletkit.tool.security.model.PersonalizeResponse;
-import com.huawei.walletkit.tool.security.model.RegistrationsRequest;
-import com.huawei.walletkit.tool.security.model.RegistrationsResponse;
-import com.huawei.walletkit.tool.security.model.RequestTokenRequest;
-import com.huawei.walletkit.tool.security.model.RequestTokenResponse;
-import com.huawei.walletkit.tool.security.model.UnregistrationsRequest;
-import com.huawei.walletkit.tool.security.model.UnregistrationsResponse;
 import com.huawei.walletkit.tool.security.manager.active.Constants;
 import com.huawei.walletkit.tool.security.util.DataConvertUtil;
 import com.huawei.walletkit.tool.security.manager.active.WhiteCardManager;
@@ -72,14 +65,14 @@ public class PassesController {
     }
 
     /**
-     * unregister: HwWallet server -> My server
+     * notifyCallback: HwWallet server -> My server
      *
-     * @param request UnregistrationsRequest
+     * @param request NotifyCallbackRequest
      * @return ResponseEntity
      */
-    @PostMapping(path = "/v1/passes/unregistrations")
-    public ResponseEntity<UnregistrationsResponse> unregister(@RequestBody UnregistrationsRequest request) {
-        return ResponseEntity.ok(WhiteCardManager.getInstance().dealWithUnregisterRequest(request));
+    @PostMapping(path = "/v1/passes/notify/callback")
+    public ResponseEntity<NotifyCallbackResponse> notifyCallback(@RequestBody NotifyCallbackRequest request) {
+        return ResponseEntity.ok(WhiteCardManager.getInstance().dealNotifyCallback(request));
     }
 
     /**

@@ -12,17 +12,8 @@ import com.huawei.walletkit.tool.security.manager.active.KeyValueConnector;
  * @since 2020-01-17
  */
 public class PassDataResponse {
-    private String encryptDevicePass;
     private String encryptAppletPersonalizeFields;
     private String encryptSessionKey;
-
-    public String getEncryptDevicePass() {
-        return encryptDevicePass;
-    }
-
-    public void setEncryptDevicePass(String encryptDevicePass) {
-        this.encryptDevicePass = encryptDevicePass;
-    }
 
     public String getEncryptAppletPersonalizeFields() {
         return encryptAppletPersonalizeFields;
@@ -48,7 +39,6 @@ public class PassDataResponse {
     public String toJsonString() {
         return new KeyValueConnector()
                 .append("encryptAppletPersonalizeFields", encryptAppletPersonalizeFields)
-                .append("encryptDevicePass", encryptDevicePass)
                 .append("encryptSessionKey", encryptSessionKey)
                 .toString();
     }

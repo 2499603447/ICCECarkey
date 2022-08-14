@@ -17,17 +17,12 @@
 package com.huawei.walletkit.tool.security.util;
 
 import com.alibaba.fastjson.JSONObject;
-import com.huawei.walletkit.tool.security.model.hwobject.Fields;
-import com.huawei.walletkit.tool.security.model.hwobject.HwWalletObject;
-import com.huawei.walletkit.tool.security.model.hwobject.Status;
+import com.huawei.walletkit.tool.security.manager.active.Constants;
+import com.huawei.walletkit.tool.security.model.hwobject.*;
 import org.springframework.util.StringUtils;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
 
 /**
  * HwWalletObject utility class.
@@ -35,6 +30,7 @@ import java.util.Locale;
  * @since 2019-12-4
  */
 public class HwWalletObjectUtil {
+    private static final String TAG = "HwWalletObjectUtil";
 
     private static final String STATE_ACTIVE = "active";
 
@@ -70,11 +66,9 @@ public class HwWalletObjectUtil {
      */
     public static void validateInstance(HwWalletObject instance) {
         if (instance != null) {
-            checkRequiredParams(instance.getPassStyleIdentifier(), "passTypeIdentifier", 64);
-            checkRequiredParams(instance.getPassStyleIdentifier(), "passStyleIdentifier", 64);
-            checkRequiredParams(instance.getOrganizationPassId(), "organizationPassId", 64);
-            checkRequiredParams(instance.getSerialNumber(), "serialNumber", 64);
-            validateStatusDate(instance);
+            checkBaseInfo(instance);
+            checkFields(instance.getFields());
+            checkLinkDevicePass(instance.getLinkDevicePass(), instance.getSerialNumber());
         } else {
             throw new IllegalArgumentException("The instance is empty.");
         }
@@ -154,16 +148,15 @@ public class HwWalletObjectUtil {
     /**
      * Check if the Status of an instance is legal.
      *
-     * @param instance the instance.
+     * @param status the status.
      */
-    private static void validateStatusDate(HwWalletObject instance) {
-        Fields fields = instance.getFields();
-        if (fields == null || fields.getStatus() == null) {
+    private static void validateStatusDate(Status status) {
+        if (status == null) {
             return;
         }
-        String state = fields.getStatus().getState();
-        String effectTime =  fields.getStatus().getEffectTime();
-        String expireTime =  fields.getStatus().getExpireTime();
+        String state = status.getState();
+        String effectTime =  status.getEffectTime();
+        String expireTime =  status.getExpireTime();
         if (!StringUtils.isEmpty(state)) {
             if (!STATE_TYPE_LIST.contains(state.toLowerCase(Locale.getDefault()))) {
                 throw new IllegalArgumentException("state is invalid.");
@@ -207,5 +200,117 @@ public class HwWalletObjectUtil {
             }
         }
         return date;
+    }
+
+    private static void checkBaseInfo(HwWalletObject instance) {
+        String passTypeIdentifier = instance.getPassStyleIdentifier();
+        String passStyleIdentifier = instance.getPassStyleIdentifier();
+        String organizationPassId = instance.getOrganizationPassId();
+        String serialNumber = instance.getSerialNumber();
+        checkRequiredParams(passTypeIdentifier, "passTypeIdentifier", 64);
+        checkRequiredParams(passStyleIdentifier, "passStyleIdentifier", 64);
+        checkRequiredParams(organizationPassId, "organizationPassId", 64);
+        checkRequiredParams(serialNumber, "serialNumber", 64);
+        if (!passTypeIdentifier.startsWith(Constants.PASS_TYPE_PREFIX)) {
+            throw new IllegalArgumentException("passTypeIdentifier:" + passTypeIdentifier + " is illegal.");
+        }
+        if (!organizationPassId.equals(serialNumber)) {
+            throw new IllegalArgumentException("organizationPassId and serialNumber must be same.");
+        }
+    }
+
+    private static void checkFields(Fields fields) {
+        if (fields == null || fields.getStatus() == null) {
+            return;
+        }
+        checkCommonFields(fields.getCommonFields());
+        validateStatusDate(fields.getStatus());
+    }
+
+    private static void checkCommonFields(List<ValueObject> commonFields) {
+        if (commonFields == null || commonFields.isEmpty()) {
+            return;
+        }
+        Set<String> mustFieldsSet = new HashSet<>();
+        mustFieldsSet.add("bleTargetActivity");
+        mustFieldsSet.add("bleFeature");
+        mustFieldsSet.add("bleMacAddress");
+        mustFieldsSet.add("readerMatchValue");
+        mustFieldsSet.add("ownerPassTypeIdentifier");
+        mustFieldsSet.add("bleServiceUuid");
+        mustFieldsSet.add("bleTargetPackage");
+        mustFieldsSet.add("bleTargetService");
+        mustFieldsSet.add("vehicleId");
+        mustFieldsSet.add("carModel");
+
+        for (ValueObject object : commonFields) {
+            String key = object.getKey();
+            String value = object.getValue();
+            if ("bleTargetActivity".equals(key) || "bleTargetPackage".equals(key) || "bleTargetService".equals(key)
+                || "vehicleId".equals(key) || "carModel".equals(key)) {
+                if (value == null || value.isEmpty()) {
+                    throw new IllegalArgumentException("bleTargetActivity, bleTargetPackage, bleTargetService, vehicleId, carModel is empty");
+                }
+                mustFieldsSet.remove(key);
+            }
+            if ("bleFeature".equals(key)) {
+                if (!"hwpass.carkey.ble".equals(value)) {
+                    throw new IllegalArgumentException("bleFeature must be hwpass.carkey.ble");
+                }
+                mustFieldsSet.remove(key);
+            }
+            if ("bleMacAddress".equals(key)) {
+                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+                    throw new IllegalArgumentException("bleMacAddress is illegal, must 6 bytes which contains A-F or 0-9 and split by ':'");
+                }
+                mustFieldsSet.remove(key);
+            }
+            if ("readerMatchValue".equals(key)) {
+                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+                    throw new IllegalArgumentException("readerMatchValue must smaller than 20 bytes and contains A-F or 0-9");
+                }
+                mustFieldsSet.remove(key);
+            }
+
+
+            if ("ownerPassTypeIdentifier".equals(key)) {
+                if (!"hwpass.stdcarkey.std".equals(value)) {
+                    throw new IllegalArgumentException("bleFeature must be hwpass.stdcarkey.std");
+                }
+                mustFieldsSet.remove(key);
+            }
+
+            if ("bleServiceUuid".equals(key)) {
+                if (value == null || !value.matches("([A-F0-9]{2}:){5}[A-F0-9]{2}")) {
+                    throw new IllegalArgumentException("bleServiceUuid is illegal, must 32 bytes which contains A-F or 0-9 and split by ':'");
+                }
+                mustFieldsSet.remove(key);
+            }
+        }
+        if (!mustFieldsSet.isEmpty()) {
+            StringBuilder builder = new StringBuilder();
+            for (String key : mustFieldsSet) {
+                builder.append(key+ ",");
+            }
+            throw new IllegalArgumentException("must contains commonFields:" + builder);
+        }
+    }
+
+    private static void checkLinkDevicePass(LinkDevicePass linkDevicePass, String serialNumber) {
+        if (linkDevicePass == null) {
+            throw new IllegalArgumentException("lineDevice is null.");
+        }
+
+        if (!"1".equals(linkDevicePass.getNfcType())) {
+            throw new IllegalArgumentException("nfcType must be equals to 1.");
+        }
+
+        if (!serialNumber.equals(linkDevicePass.getSerialNumber())) {
+            throw new IllegalArgumentException("serialNumber in linkDevicePass must equals to outside's serialNumber");
+        }
+
+        if (!Constants.SERVER_PUBLIC_KEY.equals(linkDevicePass.getSpPublickey())) {
+            throw new IllegalArgumentException("spPublicKey in linkDevicePass must equals to 'SERVER_PUBLIC_KEY' in Constants");
+        }
     }
 }

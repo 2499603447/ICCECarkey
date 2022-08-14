@@ -21,11 +21,7 @@ import com.huawei.walletkit.tool.security.pass.PassPackageCreator;
 public class DevicePassUnit {
     private static final String TAG = "DevicePassUnit";
 
-    private String organizationName = "Test Orginization";
-
     private String encryptSessionKey;
-
-    private String encryptUserDeviceFields;
 
     private String encryptAppletPersonalizeFields;
 
@@ -39,7 +35,6 @@ public class DevicePassUnit {
         generatePassData(requestBody);
         PassDataResponse dataInfo = new PassDataResponse();
         dataInfo.setEncryptAppletPersonalizeFields(encryptAppletPersonalizeFields);
-        dataInfo.setEncryptDevicePass(encryptUserDeviceFields);
         dataInfo.setEncryptSessionKey(encryptSessionKey);
         return dataInfo;
     }
@@ -58,13 +53,6 @@ public class DevicePassUnit {
         encryptSessionKey = DataConvertUtil.encryptToBase64ByPublicKey(originKey, taPublicKey,
                 DataConvertUtil.TA_PUBLIC_KEY_ENCRYPT_MODE);
         LogUtil.info(TAG, "generatePassData, encryptSessionKey=" + LogUtil.parseSensitiveinfo(encryptSessionKey));
-        // Get pass package data
-        String passPackageData = generatePassPackageData(requestBody);
-        LogUtil.info(TAG, "generatePassData, passPackageData=" + passPackageData, true);
-        // Encrypt pass data with key-iv
-        encryptUserDeviceFields =
-                AesUtils.encryptToBase64(passPackageData, aesKey, aesIv, AesUtils.AES_CBC_PKCS_5_PADDING);
-        LogUtil.info(TAG, "generatePassData, encryptUserDeviceFields=" + encryptUserDeviceFields, true);
         // get personalize data
         String personalizeData = PassData.getPersonalizeData(appletPublicKey, requestBody.getSerialNumber());
         LogUtil.info(TAG, "generatePassData, personalizeData=" + LogUtil.parseSensitiveinfo(personalizeData));
@@ -72,20 +60,5 @@ public class DevicePassUnit {
         encryptAppletPersonalizeFields =
                 AesUtils.encryptToBase64(personalizeData, aesKey, aesIv, AesUtils.AES_CBC_PKCS_5_PADDING);
         LogUtil.info(TAG, "generatePassData, encryptAppletPersonalizeFields=" + encryptAppletPersonalizeFields, true);
-    }
-
-    private String generatePassPackageData(RequestBody requestBody) {
-        PassDataInfo passDataInfo = new PassDataInfo();
-        passDataInfo.setPassVersion(requestBody.getPassVersion());
-        passDataInfo.setOrganizationPassId(requestBody.getSerialNumber());
-        passDataInfo.setOrganizationName(organizationName);
-        passDataInfo.setPassTypeIdentifier(requestBody.getPassTypeIdentifier());
-        passDataInfo.setSerialNumber(requestBody.getSerialNumber());
-        passDataInfo.setPassStyleIdentifier("DevicePassStyle");
-        PassDataField fields = new PassDataField();
-        passDataInfo.setFields(fields);
-        String dataInfo = PassPackageCreator.createPassPackage(passDataInfo);
-        LogUtil.info(TAG, "dataInfo:" + dataInfo, true);
-        return dataInfo;
     }
 }

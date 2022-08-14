@@ -4,21 +4,10 @@
 
 package com.huawei.walletkit.tool.security.manager.active;
 
+import com.huawei.walletkit.tool.security.model.*;
 import com.huawei.walletkit.tool.security.util.CommonUtils;
 import com.huawei.walletkit.tool.security.util.DataConvertUtil;
 import com.huawei.walletkit.tool.security.util.LogUtil;
-import com.huawei.walletkit.tool.security.model.PersonalizeRequest;
-import com.huawei.walletkit.tool.security.model.PersonalizeResponse;
-import com.huawei.walletkit.tool.security.model.RegistrationsRequest;
-import com.huawei.walletkit.tool.security.model.RegistrationsResponse;
-import com.huawei.walletkit.tool.security.model.RequestTokenRequest;
-import com.huawei.walletkit.tool.security.model.RequestTokenResponse;
-import com.huawei.walletkit.tool.security.model.Certificate;
-import com.huawei.walletkit.tool.security.model.PassDataResponse;
-import com.huawei.walletkit.tool.security.model.RequestBody;
-import com.huawei.walletkit.tool.security.model.Response;
-import com.huawei.walletkit.tool.security.model.UnregistrationsRequest;
-import com.huawei.walletkit.tool.security.model.UnregistrationsResponse;
 import org.bouncycastle.jce.provider.BouncyCastleProvider;
 
 import java.security.Security;
@@ -228,37 +217,9 @@ public class WhiteCardManager {
         return devicePassUnit.toJson(requestBody);
     }
 
-    /**
-     * Deal with the unregister request
-     *
-     * @param request Request for unregister
-     * @return Response data for return
-     */
-    public UnregistrationsResponse dealWithUnregisterRequest(UnregistrationsRequest request) {
-        UnregistrationsResponse response = new UnregistrationsResponse();
-        String userDeviceId = request.getRequestBody().getUserDeviceId();
-        if (CommonUtils.isStringEmpty(userDeviceId)) {
-            LogUtil.info("Personalize:User device id or sp certificate is empty");
-            response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_PARAM_ERROR));
-            return response;
-        }
-        Certificate cachedCert = deviceIdCertMap.remove(userDeviceId);
-        if (cachedCert == null) {
-            LogUtil.info("Personalize:Certificate not exist.");
-            response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_PARAM_ERROR));
-            return response;
-        }
-        String signature = request.getSignature();
-        String jsonString = request.toJsonString();
-        LogUtil.info(TAG, "dealWithUnregisterRequest, jsonString=" + jsonString, true);
-        if (!DataConvertUtil.checkSign(jsonString, signature, Constants.WALLET_PUBLIC_KEY,
-                DataConvertUtil.SIGN_MODE_SHA256_RSA_PSS)) {
-            LogUtil.info("dealWithUnregisterRequest, checkSign fail.");
-            response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_SIGN_ERROR));
-            return response;
-        }
-        LogUtil.info("dealWithUnregisterRequest, success.");
-        response.setHttpStatus(String.valueOf(Constants.RESULT_CODE_OK));
+    public NotifyCallbackResponse dealNotifyCallback(NotifyCallbackRequest request) {
+        NotifyCallbackResponse response = new NotifyCallbackResponse();
+
         return response;
     }
 }

@@ -49,6 +49,8 @@ public class Constants {
      */
     public static final String TOKEN_PREV_PART = "HuaweiPassToken ";
 
+    public static final String PASS_TYPE_PREFIX = "hwpass.stdcarkey";
+
     /**
      * key of code_ok
      */
